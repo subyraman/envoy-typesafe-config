@@ -15,10 +15,6 @@ import (
 )
 
 func main() {
-	httpRouterFilter := envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
-		Name: "envoy.filters.http.router",
-	}
-
 	simplePathSpecifier := envoy_config_route_v3.RouteMatch_Prefix{
 		Prefix: "/",
 	}
@@ -51,6 +47,10 @@ func main() {
 
 	httpRouteConfig := envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_RouteConfig{
 		RouteConfig: &routeConfig,
+	}
+
+	httpRouterFilter := envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
+		Name: "envoy.filters.http.router",
 	}
 
 	httpConnectionManager := envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
@@ -107,7 +107,7 @@ func main() {
 
 	err := bootstrap.Validate()
 	if err != nil {
-		log.Fatalf("err: %s", err)
+		log.Fatalf("Error in validation: %s", err)
 	}
 
 	opts := protojson.MarshalOptions{
@@ -126,5 +126,4 @@ func main() {
 
 	f.WriteString(string(out))
 	f.Close()
-
 }
