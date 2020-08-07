@@ -4,9 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/golang/protobuf/ptypes"
-
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	envoy_config_bootstrap_v3 "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
@@ -62,7 +61,6 @@ func main() {
 
 	httpConnectionManagerAny, _ := ptypes.MarshalAny(&httpConnectionManager)
 
-	// create filter
 	httpConnectionManagerTypedConfig := envoy_config_listener_v3.Filter_TypedConfig{
 		TypedConfig: httpConnectionManagerAny,
 	}
@@ -78,14 +76,12 @@ func main() {
 		Filters: filters,
 	}
 
-	socketPortSpecifier := envoy_config_core_v3.SocketAddress_PortValue{
-		PortValue: 10000,
-	}
-
 	socketAddress := envoy_config_core_v3.SocketAddress{
-		Protocol:      envoy_config_core_v3.SocketAddress_TCP,
-		Address:       "0.0.0.0",
-		PortSpecifier: &socketPortSpecifier,
+		Protocol: envoy_config_core_v3.SocketAddress_TCP,
+		Address:  "0.0.0.0",
+		PortSpecifier: &envoy_config_core_v3.SocketAddress_PortValue{
+			PortValue: 10000,
+		},
 	}
 
 	addressSocketAddress := envoy_config_core_v3.Address_SocketAddress{
@@ -111,7 +107,7 @@ func main() {
 
 	err := bootstrap.Validate()
 	if err != nil {
-		log.Fatalf("Failed to validate with error: %s", err)
+		log.Fatalf("err: %s", err)
 	}
 
 	opts := protojson.MarshalOptions{
