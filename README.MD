@@ -3,7 +3,7 @@ An example of generating type-safe Envoy configuration in Go using Envoy's proto
 ### Build the configuration and run the envoy server in Docker:
 
 ```
-docker build -f Dockerfile-envoy --tag envoy-config:latest .
+docker build --tag envoy:latest .
 ```
 
 ### Run the envoy server:

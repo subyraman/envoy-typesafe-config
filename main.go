@@ -5,7 +5,8 @@ import (
 	"os"
 
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/any"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	envoy_config_bootstrap_v3 "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
@@ -59,8 +60,16 @@ func main() {
 		HttpFilters:    []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{&httpRouterFilter},
 	}
 
-	httpConnectionManagerAny, _ := ptypes.MarshalAny(&httpConnectionManager)
+	// serialize the `httpConnectionManager` message into a raw byte array
+	serialized, _ := proto.Marshal(&httpConnectionManager)
 
+	// create an Any protocol buffer representation
+	httpConnectionManagerAny := &any.Any{
+		TypeUrl: "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+		Value:   serialized,
+	}
+
+	// use the Any protobuf message as the typed configuration
 	httpConnectionManagerTypedConfig := envoy_config_listener_v3.Filter_TypedConfig{
 		TypedConfig: httpConnectionManagerAny,
 	}
