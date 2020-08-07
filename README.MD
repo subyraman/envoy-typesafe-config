@@ -1,4 +1,4 @@
-An example of generating type-safe Envoy configuration in Go using Envoy's protocol buffers. The accompanying post explaining this repo his here: https://medium.com/@subyraman/type-safe-server-configuration-with-envoy-and-protocol-buffers-dfdf47af00d5
+An example of generating type-safe Envoy configuration in Go using Envoy's protocol buffers. [The accompanying post explaining this repo is here](https://medium.com/@subyraman/type-safe-server-configuration-with-envoy-and-protocol-buffers-dfdf47af00d5). 
 
 ### Build the configuration and run the envoy server in Docker:
 
