@@ -1,0 +1,54 @@
+{
+   "staticResources": {
+      "listeners": [
+         {
+            "name": "listener1",
+            "address": {
+               "socketAddress": {
+                  "address": "0.0.0.0",
+                  "portValue": 10000
+               }
+            },
+            "filterChains": [
+               {
+                  "filters": [
+                     {
+                        "name": "envoy.filters.network.http_connection_manager",
+                        "typedConfig": {
+                           "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                           "statPrefix": "ingress_http",
+                           "routeConfig": {
+                              "name": "local_route",
+                              "virtualHosts": [
+                                 {
+                                    "name": "local_service",
+                                    "domains": [
+                                       "*"
+                                    ],
+                                    "routes": [
+                                       {
+                                          "match": {
+                                             "prefix": "/"
+                                          },
+                                          "directResponse": {
+                                             "status": 200
+                                          }
+                                       }
+                                    ]
+                                 }
+                              ]
+                           },
+                           "httpFilters": [
+                              {
+                                 "name": "envoy.filters.http.router"
+                              }
+                           ]
+                        }
+                     }
+                  ]
+               }
+            ]
+         }
+      ]
+   }
+}

@@ -1,51 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
+
+	"github.com/golang/protobuf/ptypes"
 
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	"github.com/golang/protobuf/ptypes/any"
-
-	//"github.com/golang/protobuf/ptypes/any"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
-
-	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
-
-	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 
 	envoy_config_bootstrap_v3 "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
-
 	envoy_config_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 )
-
-// static_resources:
-//   listeners:
-//   - name: listener_0
-//     address:
-//       socket_address:
-//         protocol: TCP
-//         address: 0.0.0.0
-//         port_value: 10000
-//     filter_chains:
-//     - filters:
-//       - name: envoy.filters.network.http_connection_manager
-//         typed_config:
-//           "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
-//           stat_prefix: ingress_http
-//           route_config:
-//             name: local_route
-//             virtual_hosts:
-//             - name: local_service
-//               domains: ["*"]
-//               routes:
-//               - match:
-//                   prefix: "/"
-//                 direct_response:
-//                   status: 200
-//           http_filters:
-//           - name: envoy.filters.http.router
 
 func main() {
 	httpRouterFilter := envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
@@ -92,12 +60,7 @@ func main() {
 		HttpFilters:    []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{&httpRouterFilter},
 	}
 
-	serialized, _ := proto.Marshal(&httpConnectionManager)
-
-	httpConnectionManagerAny := &any.Any{
-		TypeUrl: "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
-		Value:   serialized,
-	}
+	httpConnectionManagerAny, _ := ptypes.MarshalAny(&httpConnectionManager)
 
 	// create filter
 	httpConnectionManagerTypedConfig := envoy_config_listener_v3.Filter_TypedConfig{
@@ -146,10 +109,26 @@ func main() {
 		StaticResources: &staticResources,
 	}
 
-	foo, err := protojson.Marshal(&bootstrap)
+	err := bootstrap.Validate()
+	if err != nil {
+		log.Fatalf("Failed to validate with error: %s", err)
+	}
+
+	opts := protojson.MarshalOptions{
+		Indent: "   ",
+	}
+
+	out, err := opts.Marshal(&bootstrap)
 	if err != nil {
 		log.Fatalf("error when marshalling: %s", err)
 	}
 
-	fmt.Println(string(foo))
+	f, err := os.Create("envoy.json")
+	if err != nil {
+		log.Fatalf("error when creating file: %s", err)
+	}
+
+	f.WriteString(string(out))
+	f.Close()
+
 }
