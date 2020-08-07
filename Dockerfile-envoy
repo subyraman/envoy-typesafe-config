@@ -1,0 +1,6 @@
+FROM envoyproxy/envoy-dev
+RUN apt-get update && apt-get install -y netcat dnsutils
+
+COPY envoy/envoy.yaml /etc/envoy/envoy.yaml
+
+EXPOSE 10000
